@@ -5,13 +5,13 @@ ARG BUILD_DATE
 ARG VERSION
 ARG OPENSSH_RELEASE
 LABEL build_version="Linuxserver.io version:- ${VERSION} Build-date:- ${BUILD_DATE}"
-LABEL maintainer="aptalca"
+LABEL maintainer="dheater"
 
 RUN \
   echo "**** install runtime packages ****" && \
   apk add --no-cache --upgrade \
     logrotate \
-    nano \
+    vim \
     netcat-openbsd \
     sudo && \
   echo "**** install openssh-server ****" && \
@@ -24,7 +24,10 @@ RUN \
     openssh-server-pam==${OPENSSH_RELEASE} \
     openssh-sftp-server==${OPENSSH_RELEASE} && \
   echo "**** setup openssh environment ****" && \
-  sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/g' /etc/ssh/sshd_config && \
+  sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config && \
+  sed -i 's/#LogLevel INFO/LogLevel DEBUG3/' /etc/ssh/sshd_config && \
+  sed -i 's/AllowTcpForwarding no/AllowTcpForwarding yes/' /etc/ssh/sshd_config && \
+  sed -i 's/GatewayPorts no/GatewayPorts yes/' /etc/ssh/sshd_config && \
   usermod --shell /bin/bash abc && \
   rm -rf \
     /tmp/*
